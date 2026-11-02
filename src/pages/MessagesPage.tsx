@@ -1,63 +1,75 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth, useData, useToast } from '../store';
 import { Avatar, EmptyState, Badge } from '../components/UI';
-import { Send, ArrowLeft, Search } from 'lucide-react';
-
-interface MessageData {
-  id: string;
-  content: string;
-  fromMe: boolean;
-  time: string;
-}
+import { Send, ArrowLeft, Search, Trash2, Check, CheckCheck } from 'lucide-react';
 
 export function MessagesPage() {
   const { user } = useAuth();
-  const { conversations } = useData();
+  const { conversations, messagesData, sendMessage, markMessagesRead } = useData();
   const { addToast } = useToast();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [messages, setMessages] = useState<Record<string, MessageData[]>>({
-    '2': [
-      { id: 'm1', content: 'Oi! Tudo bem?', fromMe: false, time: '10:30' },
-      { id: 'm2', content: 'Oi Maria! Tudo sim, e você?', fromMe: true, time: '10:32' },
-      { id: 'm3', content: 'Bem também! Vi seu projeto de IoT, ficou muito legal!', fromMe: false, time: '10:35' },
-      { id: 'm4', content: 'Obrigado! Fiquei bastante satisfeito com o resultado', fromMe: true, time: '10:36' },
-      { id: 'm5', content: 'Obrigada pela ajuda!', fromMe: false, time: '10:40' },
-    ],
-    '3': [
-      { id: 'm6', content: 'Bom dia, professor!', fromMe: true, time: '08:00' },
-      { id: 'm7', content: 'Bom dia! Como estão os estudos?', fromMe: false, time: '08:15' },
-      { id: 'm8', content: 'Não esqueça da entrega do projeto na sexta-feira', fromMe: false, time: '09:00' },
-    ],
-    '4': [
-      { id: 'm9', content: 'E aí, vamos estudar juntos amanhã?', fromMe: false, time: '14:00' },
-    ],
-  });
+  const [search, setSearch] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLengthRef = useRef(0);
 
   const selectedConv = conversations.find(c => c.userId === selectedConversation);
-  const currentMessages = selectedConversation ? (messages[selectedConversation] || []) : [];
+  const currentMessages = selectedConversation ? (messagesData[selectedConversation] || []) : [];
+
+  // Scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (currentMessages.length > prevMessagesLengthRef.current && selectedConversation) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    prevMessagesLengthRef.current = currentMessages.length;
+  }, [currentMessages.length, selectedConversation]);
+
+  // Mark messages as read when opening conversation
+  useEffect(() => {
+    if (selectedConversation && user) {
+      markMessagesRead(selectedConversation);
+    }
+  }, [selectedConversation, markMessagesRead, user]);
 
   const handleSend = async () => {
-    if (!messageInput.trim() || !selectedConversation) return;
+    if (!messageInput.trim() || !selectedConversation || !user) return;
     setSending(true);
-    await new Promise(r => setTimeout(r, 300));
-    const newMsg: MessageData = {
-      id: Date.now().toString(),
-      content: messageInput.trim(),
-      fromMe: true,
-      time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages(prev => ({
-      ...prev,
-      [selectedConversation]: [...(prev[selectedConversation] || []), newMsg],
-    }));
-    setMessageInput('');
-    addToast('success', 'Mensagem enviada.');
-    setSending(false);
+    try {
+      await new Promise(r => setTimeout(r, 300));
+      sendMessage(selectedConversation, messageInput.trim());
+      setMessageInput('');
+      addToast('success', 'Mensagem enviada.');
+    } catch {
+      addToast('error', 'Não foi possível enviar. Tente novamente.');
+    } finally {
+      setSending(false);
+    }
   };
 
+  const filteredConversations = conversations.filter(c =>
+    c.userName.toLowerCase().includes(search.toLowerCase())
+  );
+
   const totalUnread = conversations.reduce((sum, c) => sum + c.unread, 0);
+
+  const formatTime = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diff = now.getTime() - date.getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'Agora';
+      if (mins < 60) return `${mins}min`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours}h`;
+      const days = Math.floor(hours / 24);
+      if (days < 7) return `${days}d`;
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    } catch {
+      return dateStr;
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-[calc(100vh-10rem)] flex flex-col">
@@ -79,6 +91,8 @@ export function MessagesPage() {
               <input
                 type="search"
                 placeholder="Buscar conversas..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-senai/20 focus:border-senai outline-none"
                 aria-label="Buscar conversas"
               />
@@ -86,21 +100,21 @@ export function MessagesPage() {
           </div>
           {/* Conversations */}
           <div className="flex-1 overflow-y-auto">
-            {conversations.length === 0 ? (
+            {filteredConversations.length === 0 ? (
               <EmptyState
                 icon={<Send className="w-8 h-8" />}
-                title="Nenhuma conversa"
-                description="Inicie uma conversa com um colega ou professor."
+                title={search ? 'Nenhuma conversa encontrada' : 'Nenhuma conversa ainda'}
+                description={search ? 'Tente buscar com outros termos.' : 'Inicie uma conversa com um colega ou professor.'}
               />
             ) : (
-              conversations.map(conv => (
+              filteredConversations.map(conv => (
                 <button
                   key={conv.userId}
                   onClick={() => setSelectedConversation(conv.userId)}
                   className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left border-b border-gray-50 ${
                     selectedConversation === conv.userId ? 'bg-senai-light border-l-2 border-l-senai' : ''
                   }`}
-                  aria-label={`Conversa com ${conv.userName}`}
+                  aria-label={`Conversa com ${conv.userName}${conv.unread > 0 ? `, ${conv.unread} mensagens não lidas` : ''}`}
                 >
                   <div className="relative">
                     <Avatar name={conv.userName} src={conv.userAvatar} size="md" />
@@ -108,10 +122,14 @@ export function MessagesPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <p className="font-semibold text-sm text-gray-800 truncate">{conv.userName}</p>
-                      <span className="text-[10px] text-gray-400 shrink-0">{conv.lastTime}</span>
+                      <p className={`text-sm truncate ${conv.unread > 0 ? 'font-bold text-gray-800' : 'font-medium text-gray-700'}`}>
+                        {conv.userName}
+                      </p>
+                      <span className="text-[10px] text-gray-400 shrink-0 ml-2">
+                        {formatTime(conv.lastTime)}
+                      </span>
                     </div>
-                    <p className={`text-xs truncate ${conv.unread > 0 ? 'text-gray-800 font-medium' : 'text-gray-500'}`}>
+                    <p className={`text-xs truncate mt-0.5 ${conv.unread > 0 ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
                       {conv.lastMessage}
                     </p>
                   </div>
@@ -135,25 +153,45 @@ export function MessagesPage() {
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <Avatar name={selectedConv.userName} src={selectedConv.userAvatar} size="sm" />
-                <div>
+                <div className="flex-1">
                   <p className="font-semibold text-sm text-gray-800">{selectedConv.userName}</p>
                   <p className="text-xs text-green-600">Online</p>
                 </div>
               </div>
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
-                {currentMessages.map(msg => (
-                  <div key={msg.id} className={`flex ${msg.fromMe ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-                    <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
-                      msg.fromMe
-                        ? 'bg-senai text-white rounded-br-md'
-                        : 'bg-white text-text-primary border border-border-light rounded-bl-md shadow-sm'
-                    }`}>
-                      <p>{msg.content}</p>
-                      <p className={`text-[10px] mt-1 ${msg.fromMe ? 'text-white/70' : 'text-gray-400'}`}>{msg.time}</p>
-                    </div>
+                {currentMessages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
+                    <EmptyState
+                      icon={<Send className="w-8 h-8" />}
+                      title="Nenhuma mensagem ainda"
+                      description="Envie a primeira mensagem para iniciar a conversa."
+                    />
                   </div>
-                ))}
+                ) : (
+                  currentMessages.map(msg => (
+                    <div key={msg.id} className={`flex ${msg.fromId === user?.id ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+                      <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
+                        msg.fromId === user?.id
+                          ? 'bg-senai text-white rounded-br-md'
+                          : 'bg-white text-gray-700 border border-gray-100 rounded-bl-md shadow-sm'
+                      }`}>
+                        <p className="break-words">{msg.content}</p>
+                        <div className={`flex items-center gap-1 mt-1 ${msg.fromId === user?.id ? 'justify-end' : ''}`}>
+                          <p className={`text-[10px] ${msg.fromId === user?.id ? 'text-white/70' : 'text-gray-400'}`}>
+                            {formatTime(msg.createdAt)}
+                          </p>
+                          {msg.fromId === user?.id && (
+                            msg.read
+                              ? <CheckCheck className="w-3 h-3 text-white/70" />
+                              : <Check className="w-3 h-3 text-white/50" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+                <div ref={messagesEndRef} />
               </div>
               {/* Input */}
               <div className="p-3 border-t border-gray-100 bg-white">
@@ -164,7 +202,8 @@ export function MessagesPage() {
                     value={messageInput}
                     onChange={e => setMessageInput(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                    className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-senai/20 focus:border-senai outline-none transition"
+                    disabled={sending}
+                    className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-senai/20 focus:border-senai outline-none transition disabled:opacity-50"
                     aria-label="Digite uma mensagem"
                   />
                   <button
@@ -183,7 +222,7 @@ export function MessagesPage() {
               <EmptyState
                 icon={<Send className="w-8 h-8" />}
                 title="Selecione uma conversa"
-                description="Escolha uma conversa na lista para começar a mensagens."
+                description="Escolha uma conversa na lista para começar a trocar mensagens."
               />
             </div>
           )}
