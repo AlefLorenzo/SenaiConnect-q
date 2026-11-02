@@ -82,7 +82,7 @@ function PostCard({ post }: { post: Post }) {
         <button
           onClick={handleLike}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium ${
-            isLiked ? 'text-senai bg-senai-50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+            isLiked ? 'text-senai bg-senai-light' : 'text-text-secondary hover:bg-gray-50 hover:text-text-primary'
           }`}
           aria-label={isLiked ? 'Descurtir publicação' : 'Curtir publicação'}
           aria-pressed={isLiked}
@@ -109,7 +109,7 @@ function PostCard({ post }: { post: Post }) {
         <button
           onClick={handleSave}
           className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl transition text-sm font-medium ${
-            post.saved ? 'text-senai bg-senai-50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+            post.saved ? 'text-senai bg-senai-light' : 'text-text-secondary hover:bg-gray-50 hover:text-text-primary'
           }`}
           aria-label={post.saved ? 'Remover dos salvos' : 'Salvar publicação'}
           aria-pressed={post.saved}
@@ -153,7 +153,7 @@ function PostCard({ post }: { post: Post }) {
               <button
                 onClick={handleComment}
                 disabled={!commentText.trim() || submitting}
-                className="p-2 text-senai hover:bg-senai-50 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 text-senai hover:bg-senai-light rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Enviar comentário"
               >
                 <Send className="w-4 h-4" />

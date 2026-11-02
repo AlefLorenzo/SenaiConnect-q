@@ -54,7 +54,7 @@ export function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-senai-50 via-white to-gray-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-senai-light via-white to-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8 animate-fade-in">
@@ -62,7 +62,7 @@ export function AuthPage() {
             <span className="text-white font-bold text-2xl">S</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-800">SENAI Connect</h1>
-          <p className="text-sm text-gray-500 mt-1">Rede Social Acadêmica</p>
+          <p className="text-sm text-text-secondary mt-1">Rede Social Acadêmica</p>
         </div>
 
         {/* Card */}
@@ -162,9 +162,9 @@ export function AuthPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-text-secondary">
               {mode === 'login' ? 'Ainda não tem conta?' : 'Já tem uma conta?'}
-              <button onClick={switchMode} className="ml-1 font-semibold text-senai hover:text-senai-dark transition">
+              <button onClick={switchMode} className="ml-1 font-semibold text-senai hover:text-senai-hover transition">
                 {mode === 'login' ? 'Cadastre-se' : 'Fazer login'}
               </button>
             </p>

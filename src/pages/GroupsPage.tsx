@@ -45,7 +45,7 @@ export function GroupsPage() {
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                filter === f ? 'bg-senai text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                filter === f ? 'bg-senai text-white' : 'bg-gray-100 text-text-secondary hover:bg-gray-200'
               }`}
             >
               {f === 'all' ? 'Todos' : f === 'joined' ? 'Participando' : 'Disponíveis'}

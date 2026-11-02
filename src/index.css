@@ -1,22 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --color-senai: #e31837;
-  --color-senai-dark: #b81230;
-  --color-senai-light: #fef2f2;
-  --color-senai-50: #fef2f2;
-  --color-senai-100: #fee2e2;
-  --color-senai-200: #fecaca;
-  --color-senai-500: #ef4444;
-  --color-senai-600: #e31837;
-  --color-senai-700: #b81230;
-  --color-senai-800: #7f1d1d;
+  --color-senai-dark: #003087;
+  --color-senai: #0056D2;
+  --color-senai-hover: #0045B0;
+  --color-senai-light: #E8F0FE;
+  --color-senai-50: #f0f6ff;
+  --color-senai-100: #dbeafe;
+  --color-senai-200: #bfdbfe;
+  --color-senai-500: #0056D2;
+  --color-senai-600: #0045B0;
+  --color-senai-700: #003087;
+  --color-senai-800: #001f5c;
+  --color-bg-main: #F0F2F5;
+  --color-bg-card: #FFFFFF;
+  --color-text-primary: #050505;
+  --color-text-secondary: #65676B;
+  --color-text-muted: #8a8d91;
+  --color-border: #CED0D4;
+  --color-border-light: #e4e6eb;
+  --color-error: #FA3E3E;
+  --color-success: #00A400;
   --color-surface: #ffffff;
-  --color-surface-alt: #f8fafc;
-  --color-border: #e2e8f0;
-  --color-text-primary: #1e293b;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
+  --color-surface-alt: #F0F2F5;
 }
 
 * {
@@ -29,10 +35,10 @@ html {
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--color-surface-alt);
+  background-color: var(--color-bg-main);
   color: var(--color-text-primary);
 }
 
@@ -55,18 +61,18 @@ body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
+  background: #cdd0d4;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #b0b3b8;
 }
 
 /* Animations */
@@ -122,7 +128,7 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, #f0f2f5 25%, #e4e6eb 50%, #f0f2f5 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 8px;

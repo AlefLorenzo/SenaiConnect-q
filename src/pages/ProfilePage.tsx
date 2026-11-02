@@ -40,7 +40,7 @@ export function ProfilePage() {
       {/* Profile Header */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         {/* Cover */}
-        <div className="h-32 bg-gradient-to-r from-senai via-senai-dark to-senai relative">
+        <div className="h-32 bg-gradient-to-r from-senai via-senai-dark to-senai-hover relative">
           <div className="absolute inset-0 bg-black/10" />
         </div>
         {/* Avatar + Info */}
@@ -48,15 +48,15 @@ export function ProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-end gap-4">
             <div className="relative">
               <Avatar name={user.name} size="xl" className="border-4 border-white shadow-lg" />
-              <button className="absolute bottom-1 right-1 w-8 h-8 bg-senai rounded-full flex items-center justify-center text-white shadow hover:bg-senai-dark transition" aria-label="Alterar foto do perfil">
+              <button className="absolute bottom-1 right-1 w-8 h-8 bg-senai rounded-full flex items-center justify-center text-white shadow hover:bg-senai-hover transition" aria-label="Alterar foto do perfil">
                 <Camera className="w-4 h-4" />
               </button>
             </div>
             <div className="flex-1 sm:pb-2">
               <h1 className="text-xl font-bold text-gray-800">{user.name}</h1>
-              <p className="text-sm text-gray-500">{user.email}</p>
+              <p className="text-sm text-text-secondary">{user.email}</p>
               <div className="flex items-center gap-2 mt-1">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-senai-50 text-senai-700 rounded-full text-xs font-medium">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-senai-light text-senai-dark rounded-full text-xs font-medium">
                   {user.role}
                 </span>
                 {user.course && (
@@ -190,8 +190,8 @@ export function ProfilePage() {
       {/* Onboarding Help Modal */}
       <Modal open={showOnboardingHelp} onClose={() => setShowOnboardingHelp(false)} title="Dicas da plataforma">
         <div className="space-y-4">
-          <div className="p-3 bg-senai-50 rounded-xl border border-senai-100">
-            <p className="text-sm text-senai-700">
+          <div className="p-3 bg-senai-light rounded-xl border border-senai-200">
+            <p className="text-sm text-senai-dark">
               <strong>Boas-vindas ao SENAI Connect!</strong> Aqui estão as dicas para aproveitar a plataforma:
             </p>
           </div>

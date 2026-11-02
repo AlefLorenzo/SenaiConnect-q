@@ -69,7 +69,7 @@ export function MessagesPage() {
             <div className="flex items-center justify-between mb-3">
               <h1 className="text-lg font-bold text-gray-800">Mensagens</h1>
               {totalUnread > 0 && (
-                <span className="px-2 py-0.5 bg-senai-50 text-senai-700 rounded-full text-xs font-bold">
+                <span className="px-2 py-0.5 bg-senai-light text-senai-dark rounded-full text-xs font-bold">
                   {totalUnread} nova{totalUnread > 1 ? 's' : ''}
                 </span>
               )}
@@ -98,7 +98,7 @@ export function MessagesPage() {
                   key={conv.userId}
                   onClick={() => setSelectedConversation(conv.userId)}
                   className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-left border-b border-gray-50 ${
-                    selectedConversation === conv.userId ? 'bg-senai-50 border-l-2 border-l-senai' : ''
+                    selectedConversation === conv.userId ? 'bg-senai-light border-l-2 border-l-senai' : ''
                   }`}
                   aria-label={`Conversa com ${conv.userName}`}
                 >
@@ -147,7 +147,7 @@ export function MessagesPage() {
                     <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
                       msg.fromMe
                         ? 'bg-senai text-white rounded-br-md'
-                        : 'bg-white text-gray-700 border border-gray-100 rounded-bl-md shadow-sm'
+                        : 'bg-white text-text-primary border border-border-light rounded-bl-md shadow-sm'
                     }`}>
                       <p>{msg.content}</p>
                       <p className={`text-[10px] mt-1 ${msg.fromMe ? 'text-white/70' : 'text-gray-400'}`}>{msg.time}</p>
@@ -170,7 +170,7 @@ export function MessagesPage() {
                   <button
                     onClick={handleSend}
                     disabled={!messageInput.trim() || sending}
-                    className="p-2.5 bg-senai text-white rounded-xl hover:bg-senai-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2.5 bg-senai text-white rounded-xl hover:bg-senai-hover transition disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Enviar mensagem"
                   >
                     <Send className="w-5 h-5" />

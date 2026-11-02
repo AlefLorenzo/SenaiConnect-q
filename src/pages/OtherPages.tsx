@@ -50,7 +50,7 @@ export function NotificationsPage() {
                 key={notif.id}
                 onClick={() => markNotificationRead(notif.id)}
                 className={`w-full flex items-center gap-3 p-4 hover:bg-gray-50 transition text-left ${
-                  !notif.read ? 'bg-senai-50/50' : ''
+                  !notif.read ? 'bg-senai-light/50' : ''
                 }`}
               >
                 <div className="relative shrink-0">
@@ -106,9 +106,9 @@ export function EventsPage() {
         {events.map(event => (
           <div key={event.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 animate-fade-in">
             <div className="flex items-start gap-4">
-              <div className="w-14 h-14 bg-senai-50 rounded-xl flex flex-col items-center justify-center shrink-0">
+              <div className="w-14 h-14 bg-senai-light rounded-xl flex flex-col items-center justify-center shrink-0">
                 <Calendar className="w-5 h-5 text-senai" />
-                <span className="text-[10px] text-senai-700 font-bold mt-0.5">
+                <span className="text-[10px] text-senai-dark font-bold mt-0.5">
                   {new Date(event.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
                 </span>
               </div>
@@ -180,7 +180,7 @@ export function CoursesPage() {
             {enrolled.includes(course.id) && course.progress > 0 && (
               <div className="mt-3">
                 <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-gray-500">Progresso</span>
+                  <span className="text-text-secondary">Progresso</span>
                   <span className="font-bold text-senai">{course.progress}%</span>
                 </div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -287,9 +287,9 @@ export function HelpPage() {
     <div className="space-y-4">
       <h1 className="text-xl font-bold text-gray-800">Ajuda e Dicas</h1>
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
-        <div className="p-4 bg-senai-50 rounded-xl border border-senai-100">
-          <h2 className="font-semibold text-senai-700 mb-2">🎯 Sobre o SENAI Connect</h2>
-          <p className="text-sm text-gray-700">
+        <div className="p-4 bg-senai-light rounded-xl border border-senai-200">
+          <h2 className="font-semibold text-senai-dark mb-2">🎯 Sobre o SENAI Connect</h2>
+          <p className="text-sm text-text-primary">
             O SENAI Connect é uma rede social acadêmica desenvolvida para conectar alunos, professores e a comunidade SENAI. Aqui você pode compartilhar conteúdos, participar de grupos, trocar mensagens e muito mais.
           </p>
         </div>

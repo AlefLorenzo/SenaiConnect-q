@@ -140,8 +140,8 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
               onClick={() => onNavigate(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 currentPage === item.id
-                  ? 'bg-senai-50 text-senai border border-senai-200'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                  ? 'bg-senai-light text-senai-dark border border-senai-200'
+                  : 'text-text-secondary hover:bg-gray-50 hover:text-text-primary'
               }`}
               aria-current={currentPage === item.id ? 'page' : undefined}
             >
@@ -165,8 +165,8 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
                   onClick={() => { onNavigate(item.id); setSidebarOpen(false); }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition ${
                     currentPage === item.id
-                      ? 'bg-senai-50 text-senai'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-senai-light text-senai-dark'
+                      : 'text-text-secondary hover:bg-gray-50'
                   }`}
                   aria-current={currentPage === item.id ? 'page' : undefined}
                 >
@@ -202,7 +202,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
               className={`relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200 ${
                 currentPage === item.id
                   ? 'text-senai'
-                  : 'text-gray-400 hover:text-gray-600'
+                  : 'text-text-muted hover:text-text-secondary'
               }`}
               aria-current={currentPage === item.id ? 'page' : undefined}
               aria-label={item.label}

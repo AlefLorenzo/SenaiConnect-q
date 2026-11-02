@@ -77,8 +77,8 @@ export function Onboarding() {
       <p className="text-gray-600 mb-6 max-w-md leading-relaxed">
         Um espaço para você se conectar, compartilhar experiências e fazer parte da comunidade SENAI.
       </p>
-      <div className="bg-senai-50 border border-senai-200 rounded-xl p-4 mb-6 max-w-sm">
-        <p className="text-sm text-senai-700">
+      <div className="bg-senai-light border border-senai-200 rounded-xl p-4 mb-6 max-w-sm">
+        <p className="text-sm text-senai-dark">
           Aqui você vai encontrar colegas, professores, conteúdos educativos e muito mais. Vamos começar?
         </p>
       </div>
@@ -103,7 +103,7 @@ export function Onboarding() {
           { icon: <Bell className="w-5 h-5" />, title: 'Notificações', desc: 'Fique por dentro de tudo que acontece' },
         ].map((item, i) => (
           <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-            <div className="w-10 h-10 bg-senai-100 rounded-lg flex items-center justify-center text-senai shrink-0">
+            <div className="w-10 h-10 bg-senai-light rounded-lg flex items-center justify-center text-senai shrink-0">
               {item.icon}
             </div>
             <div>
@@ -202,19 +202,19 @@ export function Onboarding() {
       </p>
       <div className="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-3 max-w-sm mx-auto">
         <div className="flex items-center gap-2 text-sm text-gray-700">
-          <span className="w-6 h-6 bg-senai-100 rounded-full flex items-center justify-center text-xs font-bold text-senai">1</span>
+          <span className="w-6 h-6 bg-senai-light rounded-full flex items-center justify-center text-xs font-bold text-senai">1</span>
           Explore o feed na página inicial
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-700">
-          <span className="w-6 h-6 bg-senai-100 rounded-full flex items-center justify-center text-xs font-bold text-senai">2</span>
+          <span className="w-6 h-6 bg-senai-light rounded-full flex items-center justify-center text-xs font-bold text-senai">2</span>
           Curta publicações que gostar
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-700">
-          <span className="w-6 h-6 bg-senai-100 rounded-full flex items-center justify-center text-xs font-bold text-senai">3</span>
+          <span className="w-6 h-6 bg-senai-light rounded-full flex items-center justify-center text-xs font-bold text-senai">3</span>
           Comente e interaja com a comunidade
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-700">
-          <span className="w-6 h-6 bg-senai-100 rounded-full flex items-center justify-center text-xs font-bold text-senai">4</span>
+          <span className="w-6 h-6 bg-senai-light rounded-full flex items-center justify-center text-xs font-bold text-senai">4</span>
           Crie sua própria publicação
         </div>
       </div>
