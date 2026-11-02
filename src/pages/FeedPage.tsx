@@ -1,17 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth, useData, useToast } from '../store';
 import { Avatar, Button, PostSkeleton, EmptyState } from '../components/UI';
-import { Heart, MessageCircle, Bookmark, Share2, Send, Image, MoreHorizontal, Edit3 } from 'lucide-react';
+import { Heart, MessageCircle, Bookmark, Share2, Send, Image, MoreHorizontal, Edit3, Trash2 } from 'lucide-react';
 import type { Post } from '../store';
 
 function PostCard({ post }: { post: Post }) {
   const { user } = useAuth();
-  const { toggleLike, addComment, toggleSave } = useData();
+  const { toggleLike, addComment, toggleSave, deletePost, deleteComment } = useData();
   const { addToast } = useToast();
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [isLiking, setIsLiking] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const isOwner = user?.id === post.userId;
 
   const isLiked = user ? post.likes.includes(user.id) : false;
 
@@ -47,11 +49,31 @@ function PostCard({ post }: { post: Post }) {
         <Avatar name={post.userName} src={post.userAvatar} size="md" />
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm text-gray-800 truncate">{post.userName}</p>
-          <p className="text-xs text-gray-500">{post.createdAt}</p>
+          <p className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
         </div>
-        <button className="p-2 hover:bg-gray-100 rounded-lg transition" aria-label="Mais opções">
-          <MoreHorizontal className="w-4 h-4 text-gray-400" />
-        </button>
+        <div className="relative">
+          <button 
+            onClick={() => setShowMenu(!showMenu)} 
+            className="p-2 hover:bg-gray-100 rounded-lg transition" 
+            aria-label="Mais opções"
+            aria-expanded={showMenu}
+          >
+            <MoreHorizontal className="w-4 h-4 text-gray-400" />
+          </button>
+          {showMenu && isOwner && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 animate-slide-down">
+                <button
+                  onClick={() => { deletePost(post.id); addToast('info', 'Publicação excluída.'); setShowMenu(false); }}
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" /> Excluir
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Content */}

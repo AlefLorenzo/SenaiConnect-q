@@ -8,7 +8,7 @@ import { FeedPage } from './pages/FeedPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { MessagesPage } from './pages/MessagesPage';
 import { GroupsPage } from './pages/GroupsPage';
-import { NotificationsPage, EventsPage, CoursesPage, NoticesPage, SavedPage, HelpPage, SettingsPage } from './pages/OtherPages';
+import { NotificationsPage, EventsPage, CoursesPage, NoticesPage, SavedPage, HelpPage, SettingsPage, StoriesPage } from './pages/OtherPages';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -29,6 +29,7 @@ function AppContent() {
       case 'courses': return <CoursesPage />;
       case 'notices': return <NoticesPage />;
       case 'saved': return <SavedPage />;
+      case 'stories': return <StoriesPage />;
       case 'help': return <HelpPage />;
       case 'settings': return <SettingsPage />;
       default: return <FeedPage />;

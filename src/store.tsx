@@ -1,5 +1,27 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 
+// ===== PERSISTÊNCIA =====
+const storage = {
+  get: <T,>(key: string, defaultValue: T): T => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  },
+  set: (key: string, value: any) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('Erro ao salvar no localStorage:', error);
+    }
+  },
+  remove: (key: string) => {
+    localStorage.removeItem(key);
+  }
+};
+
 // ===== TYPES =====
 export interface User {
   id: string;
@@ -72,11 +94,50 @@ export interface Notification {
   fromAvatar: string;
 }
 
+export interface Story {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  mediaUrl: string;
+  mediaType: 'image' | 'video';
+  caption?: string;
+  createdAt: string;
+  expiresAt: string;
+  views: string[];
+}
+
+export interface Settings {
+  notifications: {
+    likes: boolean;
+    comments: boolean;
+    follows: boolean;
+    groups: boolean;
+    notices: boolean;
+    messages: boolean;
+  };
+  privacy: {
+    showEmail: boolean;
+    showCourse: boolean;
+    allowMessages: boolean;
+  };
+  appearance: {
+    compactMode: boolean;
+    reduceAnimations: boolean;
+  };
+}
+
 export interface Toast {
   id: string;
   type: 'success' | 'error' | 'info' | 'warning';
   message: string;
 }
+
+const DEFAULT_SETTINGS: Settings = {
+  notifications: { likes: true, comments: true, follows: true, groups: true, notices: true, messages: true },
+  privacy: { showEmail: false, showCourse: true, allowMessages: true },
+  appearance: { compactMode: false, reduceAnimations: false }
+};
 
 // ===== MOCK DATA =====
 const MOCK_USERS: User[] = [
@@ -86,20 +147,14 @@ const MOCK_USERS: User[] = [
   { id: '4', name: 'Ana Santos', email: 'ana@sp.senai.br', role: 'Aluno', avatar: '', bio: 'Estudante de Mecânica', course: 'Mecânica Industrial', interests: ['CAD', 'Manufatura'], onboardingCompleted: true },
 ];
 
-const MOCK_POSTS: Post[] = [
+const INITIAL_POSTS: Post[] = [
   { id: 'p1', userId: '2', userName: 'Maria Silva', userAvatar: '', content: 'Acabei de terminar meu projeto de IoT usando Arduino! 🎉 O sensor de temperatura está funcionando perfeitamente. Alguém mais está trabalhando com Arduino no curso?', likes: ['1', '3'], comments: [{ id: 'c1', userId: '3', userName: 'Prof. Carlos', userAvatar: '', content: 'Excelente trabalho, Maria! Continue assim 👏', createdAt: '2h atrás' }], createdAt: '3h atrás', saved: false },
   { id: 'p2', userId: '3', userName: 'Prof. Carlos', userAvatar: '', content: '📚 Dica de estudo: Para quem está aprendendo React, recomendo começar pelos conceitos de componentes e props antes de partir para hooks. A base sólida faz toda a diferença!', likes: ['1', '2', '4'], comments: [], createdAt: '5h atrás', saved: false },
   { id: 'p3', userId: '4', userName: 'Ana Santos', userAvatar: '', content: 'Alguém sabe quando será a próxima visita técnica à indústria? Gostaria de me inscrever! 🏭', likes: ['2'], comments: [{ id: 'c2', userId: '2', userName: 'Maria Silva', userAvatar: '', content: 'Acho que será semana que vem! Olha os avisos.', createdAt: '1h atrás' }], createdAt: '6h atrás', saved: false },
   { id: 'p4', userId: '1', userName: 'Alef Lorenzo', userAvatar: '', content: 'Criando minha primeira rede social como projeto do SENAI! Aprendendo muito sobre React e Node.js. 💻🚀', likes: ['2', '3', '4'], comments: [], createdAt: '1d atrás', saved: false },
 ];
 
-const MOCK_CONVERSATIONS: Conversation[] = [
-  { userId: '2', userName: 'Maria Silva', userAvatar: '', lastMessage: 'Obrigada pela ajuda!', lastTime: '10min', unread: 2 },
-  { userId: '3', userName: 'Prof. Carlos', userAvatar: '', lastMessage: 'Não esqueça da entrega', lastTime: '1h', unread: 0 },
-  { userId: '4', userName: 'Ana Santos', userAvatar: '', lastMessage: 'Vamos estudar juntos?', lastTime: '3h', unread: 1 },
-];
-
-const MOCK_GROUPS: Group[] = [
+const INITIAL_GROUPS: Group[] = [
   { id: 'g1', name: 'Desenvolvimento Web', description: 'Grupo para discutir HTML, CSS, JS e frameworks', icon: '💻', members: 45, joined: true },
   { id: 'g2', name: 'IoT e Automação', description: 'Projetos com Arduino, Raspberry Pi e sensores', icon: '🤖', members: 32, joined: false },
   { id: 'g3', name: 'Design UI/UX', description: 'Compartilhe seus designs e receba feedback', icon: '🎨', members: 28, joined: true },
@@ -107,7 +162,7 @@ const MOCK_GROUPS: Group[] = [
   { id: 'g5', name: 'Matemática Aplicada', description: 'Resolução de problemas e estudo em grupo', icon: '📐', members: 21, joined: false },
 ];
 
-const MOCK_NOTIFICATIONS: Notification[] = [
+const INITIAL_NOTIFICATIONS: Notification[] = [
   { id: 'n1', type: 'like', message: 'Maria Silva curtiu sua publicação', createdAt: '5min', read: false, fromUser: 'Maria Silva', fromAvatar: '' },
   { id: 'n2', type: 'comment', message: 'Prof. Carlos comentou na sua publicação', createdAt: '1h', read: false, fromUser: 'Prof. Carlos', fromAvatar: '' },
   { id: 'n3', type: 'follow', message: 'Ana Santos começou a seguir você', createdAt: '3h', read: true, fromUser: 'Ana Santos', fromAvatar: '' },
@@ -129,27 +184,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = sessionStorage.getItem('senai_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState<User | null>(() => storage.get<User | null>('senai_user', null));
 
   useEffect(() => {
-    if (user) {
-      sessionStorage.setItem('senai_user', JSON.stringify(user));
-    } else {
-      sessionStorage.removeItem('senai_user');
-    }
+    if (user) storage.set('senai_user', user);
+    else storage.remove('senai_user');
   }, [user]);
 
   const login = useCallback(async (email: string, _password: string): Promise<boolean> => {
     await new Promise(r => setTimeout(r, 800));
     const found = MOCK_USERS.find(u => u.email === email);
-    if (found) {
-      setUser(found);
-      return true;
-    }
-    // Allow any @senai.br email for demo
+    if (found) { setUser(found); return true; }
     if (email.includes('@') && email.includes('senai')) {
       const newUser: User = { ...MOCK_USERS[0], email, name: email.split('@')[0], onboardingCompleted: false };
       setUser(newUser);
@@ -160,25 +205,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = useCallback(async (name: string, email: string, _password: string): Promise<boolean> => {
     await new Promise(r => setTimeout(r, 800));
-    const newUser: User = {
-      id: Date.now().toString(),
-      name,
-      email,
-      role: 'Aluno',
-      avatar: '',
-      bio: '',
-      course: '',
-      interests: [],
-      onboardingCompleted: false,
-    };
+    const newUser: User = { id: Date.now().toString(), name, email, role: 'Aluno', avatar: '', bio: '', course: '', interests: [], onboardingCompleted: false };
     setUser(newUser);
     return true;
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
-    sessionStorage.removeItem('senai_user');
-    sessionStorage.removeItem('senai_onboarding');
+    storage.remove('senai_user');
+    storage.remove('senai_onboarding');
   }, []);
 
   const updateProfile = useCallback((data: Partial<User>) => {
@@ -187,7 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const completeOnboarding = useCallback(() => {
     setUser(prev => prev ? { ...prev, onboardingCompleted: true } : null);
-    sessionStorage.setItem('senai_onboarding', 'true');
+    storage.set('senai_onboarding', 'true');
   }, []);
 
   return (
@@ -218,9 +253,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const addToast = useCallback((type: Toast['type'], message: string) => {
     const id = Date.now().toString();
     setToasts(prev => [...prev, { id, type, message }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, 4000);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000);
   }, []);
 
   const removeToast = useCallback((id: string) => {
@@ -246,40 +279,83 @@ interface DataContextType {
   conversations: Conversation[];
   groups: Group[];
   notifications: Notification[];
+  stories: Story[];
+  settings: Settings;
+  messagesData: Record<string, Message[]>;
   addPost: (content: string, image?: string) => void;
+  deletePost: (postId: string) => void;
   toggleLike: (postId: string) => void;
   addComment: (postId: string, content: string) => void;
+  deleteComment: (postId: string, commentId: string) => void;
   toggleSave: (postId: string) => void;
   toggleGroup: (groupId: string) => void;
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
+  sendMessage: (toId: string, content: string) => void;
+  markMessagesRead: (fromId: string) => void;
+  addStory: (mediaUrl: string, mediaType: 'image' | 'video', caption?: string) => void;
+  viewStory: (storyId: string) => void;
+  deleteStory: (storyId: string) => void;
+  updateSettings: (settings: Partial<Settings>) => void;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<Post[]>(MOCK_POSTS);
-  const [conversations] = useState<Conversation[]>(MOCK_CONVERSATIONS);
-  const [groups, setGroups] = useState<Group[]>(MOCK_GROUPS);
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+
+  const [posts, setPosts] = useState<Post[]>(() => storage.get<Post[]>('senai_posts', INITIAL_POSTS));
+  const [groups, setGroups] = useState<Group[]>(() => storage.get<Group[]>('senai_groups', INITIAL_GROUPS));
+  const [notifications, setNotifications] = useState<Notification[]>(() => storage.get<Notification[]>('senai_notifications', INITIAL_NOTIFICATIONS));
+  const [stories, setStories] = useState<Story[]>(() => storage.get<Story[]>('senai_stories', []));
+  const [messagesData, setMessagesData] = useState<Record<string, Message[]>>(() => storage.get<Record<string, Message[]>>('senai_messages', {}));
+  const [settings, setSettings] = useState<Settings>(() => storage.get<Settings>('senai_settings', DEFAULT_SETTINGS));
+
+  // Conversations derived from messages
+  const conversations: Conversation[] = Object.entries(messagesData)
+    .filter(([_, msgs]) => msgs.length > 0)
+    .map(([otherUserId, msgs]) => {
+      const otherUser = MOCK_USERS.find(u => u.id === otherUserId);
+      const sorted = [...msgs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const lastMsg = sorted[0];
+      const unread = msgs.filter(m => m.toId === user?.id && !m.read).length;
+      return {
+        userId: otherUserId,
+        userName: otherUser?.name || 'Usuário',
+        userAvatar: otherUser?.avatar || '',
+        lastMessage: lastMsg?.content || '',
+        lastTime: lastMsg?.createdAt || '',
+        unread
+      };
+    })
+    .sort((a, b) => new Date(b.lastTime).getTime() - new Date(a.lastTime).getTime());
+
+  // Persist data
+  useEffect(() => { storage.set('senai_posts', posts); }, [posts]);
+  useEffect(() => { storage.set('senai_groups', groups); }, [groups]);
+  useEffect(() => { storage.set('senai_notifications', notifications); }, [notifications]);
+  useEffect(() => { storage.set('senai_stories', stories); }, [stories]);
+  useEffect(() => { storage.set('senai_messages', messagesData); }, [messagesData]);
+  useEffect(() => { storage.set('senai_settings', settings); }, [settings]);
+
+  // Clean expired stories
+  useEffect(() => {
+    const now = new Date().toISOString();
+    setStories(prev => prev.filter(s => s.expiresAt > now));
+  }, []);
 
   const addPost = useCallback((content: string, image?: string) => {
     if (!user) return;
     const newPost: Post = {
-      id: Date.now().toString(),
-      userId: user.id,
-      userName: user.name,
-      userAvatar: user.avatar,
-      content,
-      image,
-      likes: [],
-      comments: [],
-      createdAt: 'Agora',
-      saved: false,
+      id: Date.now().toString(), userId: user.id, userName: user.name, userAvatar: user.avatar,
+      content, image, likes: [], comments: [], createdAt: new Date().toISOString(), saved: false,
     };
     setPosts(prev => [newPost, ...prev]);
   }, [user]);
+
+  const deletePost = useCallback((postId: string) => {
+    setPosts(prev => prev.filter(p => p.id !== postId));
+  }, []);
 
   const toggleLike = useCallback((postId: string) => {
     if (!user) return;
@@ -293,15 +369,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const addComment = useCallback((postId: string, content: string) => {
     if (!user) return;
     const comment: Comment = {
-      id: Date.now().toString(),
-      userId: user.id,
-      userName: user.name,
-      userAvatar: user.avatar,
-      content,
-      createdAt: 'Agora',
+      id: Date.now().toString(), userId: user.id, userName: user.name, userAvatar: user.avatar,
+      content, createdAt: new Date().toISOString(),
     };
     setPosts(prev => prev.map(p => p.id === postId ? { ...p, comments: [...p.comments, comment] } : p));
   }, [user]);
+
+  const deleteComment = useCallback((postId: string, commentId: string) => {
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, comments: p.comments.filter(c => c.id !== commentId) } : p));
+  }, []);
 
   const toggleSave = useCallback((postId: string) => {
     setPosts(prev => prev.map(p => p.id === postId ? { ...p, saved: !p.saved } : p));
@@ -319,8 +395,66 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
   }, []);
 
+  const sendMessage = useCallback((toId: string, content: string) => {
+    if (!user) return;
+    const newMsg: Message = {
+      id: Date.now().toString(), fromId: user.id, toId, content,
+      createdAt: new Date().toISOString(), read: false,
+    };
+    setMessagesData(prev => ({
+      ...prev,
+      [toId]: [...(prev[toId] || []), newMsg]
+    }));
+  }, [user]);
+
+  const markMessagesRead = useCallback((fromId: string) => {
+    if (!user) return;
+    setMessagesData(prev => ({
+      ...prev,
+      [fromId]: (prev[fromId] || []).map(m => m.fromId === fromId && m.toId === user.id ? { ...m, read: true } : m)
+    }));
+  }, [user]);
+
+  const addStory = useCallback((mediaUrl: string, mediaType: 'image' | 'video', caption?: string) => {
+    if (!user) return;
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    const newStory: Story = {
+      id: Date.now().toString(), userId: user.id, userName: user.name, userAvatar: user.avatar,
+      mediaUrl, mediaType, caption, createdAt: new Date().toISOString(),
+      expiresAt: expiresAt.toISOString(), views: [],
+    };
+    setStories(prev => [newStory, ...prev]);
+  }, [user]);
+
+  const viewStory = useCallback((storyId: string) => {
+    if (!user) return;
+    setStories(prev => prev.map(s => {
+      if (s.id !== storyId) return s;
+      if (s.views.includes(user.id)) return s;
+      return { ...s, views: [...s.views, user.id] };
+    }));
+  }, [user]);
+
+  const deleteStory = useCallback((storyId: string) => {
+    setStories(prev => prev.filter(s => s.id !== storyId));
+  }, []);
+
+  const updateSettings = useCallback((updates: Partial<Settings>) => {
+    setSettings(prev => ({
+      notifications: { ...prev.notifications, ...(updates.notifications || {}) },
+      privacy: { ...prev.privacy, ...(updates.privacy || {}) },
+      appearance: { ...prev.appearance, ...(updates.appearance || {}) },
+    }));
+  }, []);
+
   return (
-    <DataContext.Provider value={{ posts, conversations, groups, notifications, addPost, toggleLike, addComment, toggleSave, toggleGroup, markNotificationRead, markAllNotificationsRead }}>
+    <DataContext.Provider value={{
+      posts, conversations, groups, notifications, stories, settings, messagesData,
+      addPost, deletePost, toggleLike, addComment, deleteComment, toggleSave, toggleGroup,
+      markNotificationRead, markAllNotificationsRead, sendMessage, markMessagesRead,
+      addStory, viewStory, deleteStory, updateSettings
+    }}>
       {children}
     </DataContext.Provider>
   );
