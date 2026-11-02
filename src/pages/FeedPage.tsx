@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth, useData, useToast } from '../store';
 import { Avatar, Button, PostSkeleton, EmptyState } from '../components/UI';
 import { Heart, MessageCircle, Bookmark, Share2, Send, Image, MoreHorizontal, Edit3 } from 'lucide-react';
@@ -227,10 +227,10 @@ export function FeedPage() {
   const { posts } = useData();
   const [loading, setLoading] = useState(true);
 
-  // Simulate initial loading
-  if (loading) {
-    setTimeout(() => setLoading(false), 800);
-  }
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="space-y-4">
