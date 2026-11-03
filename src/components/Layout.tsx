@@ -10,9 +10,10 @@ interface LayoutProps {
   children: ReactNode;
   currentPage: string;
   onNavigate: (page: string) => void;
+  fullWidth?: boolean;
 }
 
-export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
+export function Layout({ children, currentPage, onNavigate, fullWidth = false }: LayoutProps) {
   const { user, logout } = useAuth();
   const { notifications } = useData();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -188,9 +189,15 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
 
       {/* Main content */}
       <main id="main-content" className="pt-16 pb-20 lg:pb-8 lg:pl-64 min-h-screen" role="main">
-        <div className="max-w-3xl mx-auto px-4 py-6">
-          {children}
-        </div>
+        {fullWidth ? (
+          <div className="h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)]">
+            {children}
+          </div>
+        ) : (
+          <div className="max-w-3xl mx-auto px-4 py-6">
+            {children}
+          </div>
+        )}
       </main>
 
       {/* Bottom navigation (mobile) */}

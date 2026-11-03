@@ -37,10 +37,13 @@ function AppContent() {
     }
   };
 
+  const fullWidthPages = ['messages', 'communities'];
+  const isFullWidth = fullWidthPages.includes(currentPage);
+
   return (
     <>
       <Onboarding />
-      <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
+      <Layout currentPage={currentPage} onNavigate={setCurrentPage} fullWidth={isFullWidth}>
         {renderPage()}
       </Layout>
     </>
