@@ -8,7 +8,7 @@ import { HomePage } from './pages/HomePage';
 import { FeedPage } from './pages/FeedPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { MessagesPage } from './pages/MessagesPage';
-import { GroupsPage } from './pages/GroupsPage';
+import { CommunitiesPage } from './pages/CommunitiesPage';
 import { NotificationsPage, EventsPage, CoursesPage, NoticesPage, SavedPage, HelpPage, SettingsPage } from './pages/OtherPages';
 
 function AppContent() {
@@ -25,7 +25,7 @@ function AppContent() {
       case 'feed': return <FeedPage />;
       case 'profile': return <ProfilePage />;
       case 'messages': return <MessagesPage />;
-      case 'groups': return <GroupsPage />;
+      case 'communities': return <CommunitiesPage />;
       case 'notifications': return <NotificationsPage />;
       case 'events': return <EventsPage />;
       case 'courses': return <CoursesPage />;
@@ -37,10 +37,13 @@ function AppContent() {
     }
   };
 
+  const fullWidthPages = ['messages', 'communities'];
+  const isFullWidth = fullWidthPages.includes(currentPage);
+
   return (
     <>
       <Onboarding />
-      <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
+      <Layout currentPage={currentPage} onNavigate={setCurrentPage} fullWidth={isFullWidth}>
         {renderPage()}
       </Layout>
     </>
