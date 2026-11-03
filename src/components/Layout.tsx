@@ -3,7 +3,7 @@ import { useAuth, useData } from '../store';
 import { Avatar, Badge } from './UI';
 import {
   Home, User, MessageCircle, Users, Bell, Bookmark, LogOut, Menu, X,
-  HelpCircle, Settings, Calendar, BookOpen, FileText, ChevronDown, Camera
+  HelpCircle, Settings, Calendar, BookOpen, FileText, ChevronDown
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -20,7 +20,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const unreadNotifications = notifications.filter(n => !n.read).length;
 
   const navItems = [
-    { id: 'feed', label: 'Início', icon: Home },
+    { id: 'home', label: 'Início', icon: Home },
     { id: 'groups', label: 'Grupos', icon: Users },
     { id: 'messages', label: 'Mensagens', icon: MessageCircle },
     { id: 'notifications', label: 'Avisos', icon: Bell, badge: unreadNotifications },
@@ -28,8 +28,8 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   ];
 
   const sidebarItems = [
-    { id: 'feed', label: 'Feed', icon: Home },
-    { id: 'stories', label: 'Stories', icon: Camera },
+    { id: 'home', label: 'Início', icon: Home },
+    { id: 'feed', label: 'Feed', icon: BookOpen },
     { id: 'groups', label: 'Grupos', icon: Users },
     { id: 'messages', label: 'Mensagens', icon: MessageCircle },
     { id: 'notifications', label: 'Notificações', icon: Bell, badge: unreadNotifications },

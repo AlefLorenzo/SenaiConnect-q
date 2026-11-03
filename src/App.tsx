@@ -4,15 +4,16 @@ import { ToastContainer } from './components/UI';
 import { Onboarding } from './components/Onboarding';
 import { Layout } from './components/Layout';
 import { AuthPage } from './pages/AuthPage';
+import { HomePage } from './pages/HomePage';
 import { FeedPage } from './pages/FeedPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { MessagesPage } from './pages/MessagesPage';
 import { GroupsPage } from './pages/GroupsPage';
-import { NotificationsPage, EventsPage, CoursesPage, NoticesPage, SavedPage, HelpPage, SettingsPage, StoriesPage } from './pages/OtherPages';
+import { NotificationsPage, EventsPage, CoursesPage, NoticesPage, SavedPage, HelpPage, SettingsPage } from './pages/OtherPages';
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
-  const [currentPage, setCurrentPage] = useState('feed');
+  const [currentPage, setCurrentPage] = useState('home');
 
   if (!isAuthenticated) {
     return <AuthPage />;
@@ -20,6 +21,7 @@ function AppContent() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'home': return <HomePage />;
       case 'feed': return <FeedPage />;
       case 'profile': return <ProfilePage />;
       case 'messages': return <MessagesPage />;
@@ -29,10 +31,9 @@ function AppContent() {
       case 'courses': return <CoursesPage />;
       case 'notices': return <NoticesPage />;
       case 'saved': return <SavedPage />;
-      case 'stories': return <StoriesPage />;
       case 'help': return <HelpPage />;
       case 'settings': return <SettingsPage />;
-      default: return <FeedPage />;
+      default: return <HomePage />;
     }
   };
 
