@@ -9,6 +9,7 @@ import { FeedPage } from './pages/FeedPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { MessagesPage } from './pages/MessagesPage';
 import { GroupsPage } from './pages/GroupsPage';
+import { StoriesPage } from './pages/StoriesPage';
 import { NotificationsPage, EventsPage, CoursesPage, NoticesPage, SavedPage, HelpPage, SettingsPage } from './pages/OtherPages';
 
 function AppContent() {
@@ -23,6 +24,7 @@ function AppContent() {
     switch (currentPage) {
       case 'home': return <HomePage />;
       case 'feed': return <FeedPage />;
+      case 'stories': return <StoriesPage />;
       case 'profile': return <ProfilePage />;
       case 'messages': return <MessagesPage />;
       case 'groups': return <GroupsPage />;

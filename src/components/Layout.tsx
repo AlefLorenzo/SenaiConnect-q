@@ -3,7 +3,7 @@ import { useAuth, useData } from '../store';
 import { Avatar, Badge } from './UI';
 import {
   Home, User, MessageCircle, Users, Bell, Bookmark, LogOut, Menu, X,
-  HelpCircle, Settings, Calendar, BookOpen, FileText, ChevronDown
+  HelpCircle, Settings, Calendar, BookOpen, FileText, ChevronDown, Camera
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -30,6 +30,7 @@ export function Layout({ children, currentPage, onNavigate }: LayoutProps) {
   const sidebarItems = [
     { id: 'home', label: 'Início', icon: Home },
     { id: 'feed', label: 'Feed', icon: BookOpen },
+    { id: 'stories', label: 'Stories', icon: Camera },
     { id: 'groups', label: 'Grupos', icon: Users },
     { id: 'messages', label: 'Mensagens', icon: MessageCircle },
     { id: 'notifications', label: 'Notificações', icon: Bell, badge: unreadNotifications },
